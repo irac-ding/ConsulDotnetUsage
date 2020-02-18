@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>ServiceA</name>
+    </assembly>
+    <members>
+        <member name="T:ServiceA.Consul.ConsulOption">
+            <summary>
+            Consul 注册发现相关参数
+            </summary>
+        </member>
+        <member name="P:ServiceA.Consul.ConsulOption.ServiceName">
+            <summary>
+            服务名称
+            </summary>
+        </member>
+        <member name="P:ServiceA.Consul.ConsulOption.ServiceIP">
+            <summary>
+            服务IP
+            </summary>
+        </member>
+        <member name="P:ServiceA.Consul.ConsulOption.ServicePort">
+            <summary>
+            服务端口
+            </summary>
+        </member>
+        <member name="P:ServiceA.Consul.ConsulOption.ServiceHealthCheck">
+            <summary>
+            服务健康检查地址
+            </summary>
+        </member>
+        <member name="P:ServiceA.Consul.ConsulOption.Address">
+            <summary>
+            Consul 地址
+            </summary>
+        </member>
+    </members>
+</doc>
