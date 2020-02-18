@@ -28,7 +28,7 @@ namespace ServiceB
                     {
                         builder
                             .AddConsul(
-                                "appsettings.json",
+                                "hello",
                                 options =>
                                 {
                                     options.ConsulConfigurationOptions =
