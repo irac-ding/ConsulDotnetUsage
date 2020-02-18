@@ -32,7 +32,7 @@ namespace ServiceB
                                 options =>
                                 {
                                     options.ConsulConfigurationOptions =
-                                        cco => { cco.Address = new Uri("http://localhost:8500"); };
+                                        cco => { cco.Address = new Uri("http://192.168.100.12:8500"); };
                                     options.Optional = true;
                                     options.PollWaitTime = TimeSpan.FromSeconds(5);
                                     options.ReloadOnChange = true;
