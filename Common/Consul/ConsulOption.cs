@@ -1,4 +1,4 @@
-﻿namespace ServiceB.Consul
+﻿namespace Common.Consul
 {
     /// <summary>
     /// Consul 注册发现相关参数

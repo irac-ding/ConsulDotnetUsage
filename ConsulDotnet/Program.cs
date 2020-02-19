@@ -3,6 +3,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using Common;
 using Consul;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -20,10 +21,9 @@ namespace ConsulDotnet
             Startup.ConfigureServices(serviceCollection);
             ServiceProvider = serviceCollection.BuildServiceProvider();
             Console.WriteLine("Hello World!");
-           var dataOptions=  ServiceProvider.GetService<IOptions<DataOptions>>();
-            var url = dataOptions.Value.ConsulUrl;
-
-            using (var consulClient = new ConsulClient(a => a.Address = new Uri(url)))
+            DataOptions dataOptions =  ServiceProvider.GetService<IOptions<DataOptions>>().Value;
+            ConfigOptions configOptions = ServiceProvider.GetService<IOptions<ConfigOptions>>().Value;
+            using (var consulClient = new ConsulClient(a => a.Address = new Uri(dataOptions.ConsulUrl)))
             {
                 var services = consulClient.Catalog.Service("ServiceA").Result.Response;
                 if (services != null && services.Any())
@@ -41,7 +41,7 @@ namespace ConsulDotnet
                     }
                 }
             }
-            using (var consulClient = new ConsulClient(a => a.Address = new Uri(url)))
+            using (var consulClient = new ConsulClient(a => a.Address = new Uri(dataOptions.ConsulUrl)))
             {
                 var services = consulClient.Catalog.Service("ServiceB").Result.Response;
                 if (services != null && services.Any())
@@ -59,7 +59,7 @@ namespace ConsulDotnet
                     }
                 }
             }
-            using (var consulClient = new ConsulClient(a => a.Address = new Uri(url)))
+            using (var consulClient = new ConsulClient(a => a.Address = new Uri(dataOptions.ConsulUrl)))
             {
                 var putPair = new KVPair("hello")
                 {
@@ -72,6 +72,23 @@ namespace ConsulDotnet
                 {
                     var getPair = await consulClient.KV.Get("hello");
                     string result= Encoding.UTF8.GetString(getPair.Response.Value, 0,
+                        getPair.Response.Value.Length);
+                    Console.WriteLine(result);
+                }
+            }
+            using (var consulClient = new ConsulClient(a => a.Address = new Uri(dataOptions.ConsulUrl)))
+            {
+                var putPair = new KVPair("ConfigOptions")
+                {
+                    Value = Encoding.UTF8.GetBytes(Newtonsoft.Json.JsonConvert.SerializeObject(configOptions))
+                };
+
+                var putAttempt = await consulClient.KV.Put(putPair);
+
+                if (putAttempt.Response)
+                {
+                    var getPair = await consulClient.KV.Get("ConfigOptions");
+                    string result = Encoding.UTF8.GetString(getPair.Response.Value, 0,
                         getPair.Response.Value.Length);
                     Console.WriteLine(result);
                 }

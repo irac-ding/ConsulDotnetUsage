@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Common;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -23,6 +24,7 @@ namespace ConsulDotnet
             serviceCollection.AddOptions();
             //serviceCollection.Configure<OrleansConfig>(Configuration.GetSection(nameof(OrleansConfig)));
             serviceCollection.Configure<DataOptions>(Configuration.GetSection("Data"));
+            serviceCollection.Configure<ConfigOptions>(Configuration.GetSection("ConfigOptions"));
         }
     }
 }

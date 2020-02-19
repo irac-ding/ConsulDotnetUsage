@@ -4,6 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Common;
+using Common.Consul;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -14,7 +16,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
-using ServiceA.Consul;
 
 namespace ServiceA
 {
@@ -45,6 +46,7 @@ namespace ServiceA
             });
             services.AddOptions();
             services.Configure<ConsulOption>(Configuration.GetSection("ConsulOption"));
+            services.Configure<ConfigOptions>(Configuration.GetSection("ConfigOptions"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

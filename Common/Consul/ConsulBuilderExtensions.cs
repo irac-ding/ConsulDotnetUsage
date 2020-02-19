@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Hosting;
 using System;
 
-namespace ServiceA.Consul
+namespace Common.Consul
 {
     public static class ConsulBuilderExtensions
     {

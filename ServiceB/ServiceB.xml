@@ -4,35 +4,12 @@
         <name>ServiceB</name>
     </assembly>
     <members>
-        <member name="T:ServiceB.Consul.ConsulOption">
+        <member name="M:ServiceB.Controllers.ConfigController.GetValueForKey(System.String)">
             <summary>
-            Consul 注册发现相关参数
+            ConsulOption:ConsulAddress
             </summary>
-        </member>
-        <member name="P:ServiceB.Consul.ConsulOption.ServiceName">
-            <summary>
-            服务名称
-            </summary>
-        </member>
-        <member name="P:ServiceB.Consul.ConsulOption.ServiceIP">
-            <summary>
-            服务IP
-            </summary>
-        </member>
-        <member name="P:ServiceB.Consul.ConsulOption.ServicePort">
-            <summary>
-            服务端口
-            </summary>
-        </member>
-        <member name="P:ServiceB.Consul.ConsulOption.ServiceHealthCheck">
-            <summary>
-            服务健康检查地址
-            </summary>
-        </member>
-        <member name="P:ServiceB.Consul.ConsulOption.ConsulAddress">
-            <summary>
-            Consul 地址
-            </summary>
+            <param name="key"></param>
+            <returns></returns>
         </member>
     </members>
 </doc>

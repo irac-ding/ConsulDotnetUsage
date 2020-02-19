@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj" />
     <ProjectReference Include="..\Winton.Extensions.Configuration.Consul\Winton.Extensions.Configuration.Consul.csproj" />
   </ItemGroup>
 

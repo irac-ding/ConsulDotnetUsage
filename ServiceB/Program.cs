@@ -28,7 +28,7 @@ namespace ServiceB
                     {
                         builder
                             .AddConsul(
-                                "hello",
+                                "ConfigOptions",
                                 options =>
                                 {
                                     options.ConsulConfigurationOptions =
