@@ -21,8 +21,16 @@ namespace ConsulDotnet
 
         public void ConfigureServices(IServiceCollection serviceCollection)
         {
+            // HostingEnvironment.EnvironmentName 通过环境变量设置
+            IConfiguration config = new ConfigurationBuilder()
+              .SetBasePath(HostingEnvironment.ContentRootPath)
+              .AddJsonFile("appsettings.json", true, true)
+              .AddJsonFile($"appsettings.{HostingEnvironment.EnvironmentName}.json", true, true)
+              .AddEnvironmentVariables()
+              .Build();
+            serviceCollection.AddSingleton(config);
+            serviceCollection.AddSingleton(HostingEnvironment);
             serviceCollection.AddOptions();
-            //serviceCollection.Configure<OrleansConfig>(Configuration.GetSection(nameof(OrleansConfig)));
             serviceCollection.Configure<DataOptions>(Configuration.GetSection("Data"));
             serviceCollection.Configure<ConfigOptions>(Configuration.GetSection("ConfigOptions"));
         }
