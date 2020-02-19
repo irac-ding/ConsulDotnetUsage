@@ -12,7 +12,7 @@ namespace ServiceB.Consul
             var consulClient = new ConsulClient(x =>
             {
                 // consul 服务地址
-                x.Address = new Uri(consulOption.Address);
+                x.Address = new Uri(consulOption.ConsulAddress);
             });
 
             var registration = new AgentServiceRegistration()

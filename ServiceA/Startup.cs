@@ -12,6 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using ServiceA.Consul;
 
@@ -23,7 +24,7 @@ namespace ServiceA
         {
             Configuration = configuration;
         }
-
+        private IServiceProvider ServiceProvider;
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -42,6 +43,8 @@ namespace ServiceA
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 c.IncludeXmlComments(xmlPath);
             });
+            services.AddOptions();
+            services.Configure<ConsulOption>(Configuration.GetSection("ConsulOption"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -68,14 +71,7 @@ namespace ServiceA
             {
                 endpoints.MapControllers();
             });
-            var consulOption = new ConsulOption
-            {
-                ServiceName = Configuration["ServiceName"],
-                ServiceIP = Configuration["ServiceIP"],
-                ServicePort = Convert.ToInt32(Configuration["ServicePort"]),
-                ServiceHealthCheck = Configuration["ServiceHealthCheck"],
-                Address = Configuration["ConsulAddress"]
-            };
+            var consulOption = app.ApplicationServices.GetService<IOptions<ConsulOption>>().Value;
             app.RegisterConsul(lifetime, consulOption);
         }
     }

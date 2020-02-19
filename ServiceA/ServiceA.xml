@@ -29,7 +29,7 @@
             服务健康检查地址
             </summary>
         </member>
-        <member name="P:ServiceA.Consul.ConsulOption.Address">
+        <member name="P:ServiceA.Consul.ConsulOption.ConsulAddress">
             <summary>
             Consul 地址
             </summary>

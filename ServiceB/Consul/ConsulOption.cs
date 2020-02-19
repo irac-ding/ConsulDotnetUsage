@@ -28,6 +28,6 @@
         /// <summary>
         /// Consul 地址
         /// </summary>
-        public string Address { get; set; }
+        public string ConsulAddress { get; set; }
     }
 }
