@@ -18,6 +18,11 @@
     <ProjectReference Include="..\Winton.Extensions.Configuration.Consul\Winton.Extensions.Configuration.Consul.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Content Update="Config.json">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
     <None Update="ServiceB.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

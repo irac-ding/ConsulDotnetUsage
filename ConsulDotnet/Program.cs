@@ -78,7 +78,7 @@ namespace ConsulDotnet
             }
             using (var consulClient = new ConsulClient(a => a.Address = new Uri(dataOptions.ConsulUrl)))
             {
-                var putPair = new KVPair("ConfigOptions")
+                var putPair = new KVPair("Config.json")
                 {
                     Value = Encoding.UTF8.GetBytes(Newtonsoft.Json.JsonConvert.SerializeObject(configOptions))
                 };
@@ -87,7 +87,7 @@ namespace ConsulDotnet
 
                 if (putAttempt.Response)
                 {
-                    var getPair = await consulClient.KV.Get("ConfigOptions");
+                    var getPair = await consulClient.KV.Get("Config.json");
                     string result = Encoding.UTF8.GetString(getPair.Response.Value, 0,
                         getPair.Response.Value.Length);
                     Console.WriteLine(result);

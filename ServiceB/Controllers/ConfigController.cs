@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using Common;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -25,6 +27,7 @@ namespace ServiceB.Controllers
         [HttpGet("{key}")]
         public IActionResult GetValueForKey(string key)
         {
+        
             return Ok(_configuration.GetSection(key));
         }
         [HttpGet("GetConfigOptions")]

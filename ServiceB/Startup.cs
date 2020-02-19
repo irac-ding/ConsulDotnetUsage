@@ -17,21 +17,29 @@ using Microsoft.Extensions.Hosting.Internal;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
-
+using Winton.Extensions.Configuration.Consul;
 namespace ServiceB
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public IConfiguration Configuration { get; }
+        public IHostEnvironment HostingEnvironment { get; }
+        public Startup(IHostEnvironment hostingEnvironment, IConfiguration configuration)
         {
             Configuration = configuration;
+            HostingEnvironment = hostingEnvironment;
         }
-        private IServiceProvider ServiceProvider;
-        public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // HostingEnvironment.EnvironmentName 通过环境变量设置
+            IConfiguration config = new ConfigurationBuilder()
+              .SetBasePath(HostingEnvironment.ContentRootPath)
+              .AddJsonFile("appsettings.json", true, true)
+              .AddJsonFile($"appsettings.{HostingEnvironment.EnvironmentName}.json", true, true)
+              .AddEnvironmentVariables()
+              .Build();
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
