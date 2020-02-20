@@ -27,13 +27,16 @@ namespace ServiceB.Controllers
         [HttpGet("{key}")]
         public IActionResult GetValueForKey(string key)
         {
-        
+            IConfigurationRoot configurationRoot = (IConfigurationRoot)_configuration;
             return Ok(_configuration.GetSection(key));
         }
         [HttpGet("GetConfigOptions")]
         public ConfigOptions GetConfigOptions()
         {
-            return _configOptions;
+            var ConfigOptions = new ConfigOptions();
+            // read the latest config from memory
+            _configuration.GetSection("ConfigOptions").Bind(ConfigOptions);
+            return ConfigOptions;
         }
     }
 }

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Common;
 using Consul;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
@@ -12,17 +13,22 @@ namespace ConsulDotnet
 {
     class Program
     {
+        
         private static Startup Startup;
         private static IServiceProvider ServiceProvider;
         public static async Task Main(string[] args)
         {
+            IConfiguration Configuration;
             Startup = ConsoleAppConfigurator.BootstrapApp();
             var serviceCollection = new ServiceCollection();
             Startup.ConfigureServices(serviceCollection);
             ServiceProvider = serviceCollection.BuildServiceProvider();
-            Console.WriteLine("Hello World!");
+            Configuration = Startup.Configuration;
+            var ConfigOptionsTest = new ConfigOptions();
+            Configuration.GetSection("ConfigOptions").Bind(ConfigOptionsTest);
             DataOptions dataOptions =  ServiceProvider.GetService<IOptions<DataOptions>>().Value;
             ConfigOptions configOptions = ServiceProvider.GetService<IOptions<ConfigOptions>>().Value;
+            // Find the ServiceA
             using (var consulClient = new ConsulClient(a => a.Address = new Uri(dataOptions.ConsulUrl)))
             {
                 var services = consulClient.Catalog.Service("ServiceA").Result.Response;
@@ -41,6 +47,7 @@ namespace ConsulDotnet
                     }
                 }
             }
+            //Find the ServiceB
             using (var consulClient = new ConsulClient(a => a.Address = new Uri(dataOptions.ConsulUrl)))
             {
                 var services = consulClient.Catalog.Service("ServiceB").Result.Response;
@@ -59,23 +66,7 @@ namespace ConsulDotnet
                     }
                 }
             }
-            using (var consulClient = new ConsulClient(a => a.Address = new Uri(dataOptions.ConsulUrl)))
-            {
-                var putPair = new KVPair("hello")
-                {
-                    Value = Encoding.UTF8.GetBytes("Hello Consul")
-                };
-
-                var putAttempt = await consulClient.KV.Put(putPair);
-
-                if (putAttempt.Response)
-                {
-                    var getPair = await consulClient.KV.Get("hello");
-                    string result= Encoding.UTF8.GetString(getPair.Response.Value, 0,
-                        getPair.Response.Value.Length);
-                    Console.WriteLine(result);
-                }
-            }
+            //Put or Replace the config, the ServiceA and ServiceB will sync the config
             using (var consulClient = new ConsulClient(a => a.Address = new Uri(dataOptions.ConsulUrl)))
             {
                 var putPair = new KVPair("Config.json")
