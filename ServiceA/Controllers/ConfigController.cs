@@ -31,7 +31,7 @@ namespace ServiceA.Controllers
         public ConfigOptions GetConfigOptions()
         {
             var ConfigOptions = new ConfigOptions();
-            // read the latest config from memory
+            // read the latest config from memory,remember
             _configuration.GetSection("ConfigOptions").Bind(ConfigOptions);
             return ConfigOptions;
         }

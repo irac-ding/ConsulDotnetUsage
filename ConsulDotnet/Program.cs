@@ -13,7 +13,7 @@ namespace ConsulDotnet
 {
     class Program
     {
-        
+
         private static Startup Startup;
         private static IServiceProvider ServiceProvider;
         public static async Task Main(string[] args)
@@ -26,7 +26,7 @@ namespace ConsulDotnet
             Configuration = Startup.Configuration;
             var ConfigOptionsTest = new ConfigOptions();
             Configuration.GetSection("ConfigOptions").Bind(ConfigOptionsTest);
-            DataOptions dataOptions =  ServiceProvider.GetService<IOptions<DataOptions>>().Value;
+            DataOptions dataOptions = ServiceProvider.GetService<IOptions<DataOptions>>().Value;
             ConfigOptions configOptions = ServiceProvider.GetService<IOptions<ConfigOptions>>().Value;
             // Find the ServiceA
             using (var consulClient = new ConsulClient(a => a.Address = new Uri(dataOptions.ConsulUrl)))

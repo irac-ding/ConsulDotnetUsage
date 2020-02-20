@@ -1,7 +1,7 @@
-﻿using Consul;
+﻿using System;
+using Consul;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Hosting;
-using System;
 
 namespace Common.Consul
 {

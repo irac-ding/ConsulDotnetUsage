@@ -116,7 +116,7 @@ namespace Winton.Extensions.Configuration.Consul
                 _ =>
                     throw
                         new Exception($"Error loading configuration from consul. Status code: {result.StatusCode}.")
-                };
+            };
         }
 
         private async Task PollingLoop()

@@ -1,10 +1,8 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+﻿using System;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Hosting.Internal;
-using System;
-using System.IO;
 
 namespace ConsulDotnet
 {

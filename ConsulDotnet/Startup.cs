@@ -11,7 +11,7 @@ namespace ConsulDotnet
         public IConfiguration Configuration { get; }
 
         public Startup(
-            IHostEnvironment hostingEnvironment, 
+            IHostEnvironment hostingEnvironment,
             IConfigurationBuilder configurationBuilder
         )
         {
