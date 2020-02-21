@@ -41,4 +41,212 @@ bind
  build And Run: cmd run the buildAndRun.bat
  
 实战：
+
 ![项目图](https://github.com/irac-ding/ConsulDotnetUsage/blob/master/picture/5378831-36333b210141eef9.png "项目图")
+
+1.创建 .NET Core WebAPI 服务 ServiceA（2个实例） 和 ServiceB
+
+2.NuGet 安装 Consul
+
+3.注册到 Consul 的核心代码如下（源码下载）：
+```csharp
+public static class ConsulBuilderExtensions
+{
+  public static IApplicationBuilder RegisterConsul(this IApplicationBuilder app, IApplicationLifetime lifetime, ConsulOption consulOption)
+  {
+    var consulClient = new ConsulClient(x =>
+    {
+      // consul 服务地址
+      x.Address = new Uri(consulOption.Address);
+    });
+
+    var registration = new AgentServiceRegistration()
+    {
+      ID = Guid.NewGuid().ToString(),
+      Name = consulOption.ServiceName,// 服务名
+      Address = consulOption.ServiceIP, // 服务绑定IP
+      Port = consulOption.ServicePort, // 服务绑定端口
+      Check = new AgentServiceCheck()
+      {
+        DeregisterCriticalServiceAfter = TimeSpan.FromSeconds(5),//服务启动多久后注册
+        Interval = TimeSpan.FromSeconds(10),//健康检查时间间隔
+        HTTP = consulOption.ServiceHealthCheck,//健康检查地址
+        Timeout = TimeSpan.FromSeconds(5)
+      }
+    };
+
+    // 服务注册
+    consulClient.Agent.ServiceRegister(registration).Wait();
+
+    // 应用程序终止时，服务取消注册
+    lifetime.ApplicationStopping.Register(() =>
+    {
+      consulClient.Agent.ServiceDeregister(registration.ID).Wait();
+    });
+    return app;
+  }
+}
+```
+4.添加配置如下：
+```json
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Warning"
+    }
+  },
+  "ConsulOption": {
+    "AllowedHosts": "*",
+    "ServiceName": "ServiceA",
+    "ServiceIP": "192.168.100.12",
+    "ServicePort": 8010,
+    "ServiceHealthCheck": "http://192.168.100.12:8010/healthCheck",
+    "ConsulAddress": "http://192.168.100.12:8500"
+  }
+}
+
+```
+5.注册成功结果如下：
+![注册成功结果](https://github.com/irac-ding/ConsulDotnetUsage/blob/master/picture/image%20(1).png "注册成功结果")
+
+6.服务发现
+```csharp
+       // Find the ServiceA
+            using (var consulClient = new ConsulClient(a => a.Address = new Uri(dataOptions.ConsulUrl)))
+            {
+                var services = consulClient.Catalog.Service("ServiceA").Result.Response;
+                if (services != null && services.Any())
+                {
+                    // 模拟随机一台进行请求，这里只是测试，可以选择合适的负载均衡工具或框架
+                    Random r = new Random();
+                    int index = r.Next(services.Count());
+                    var service = services.ElementAt(index);
+
+                    using (HttpClient client = new HttpClient())
+                    {
+                        var response = await client.GetAsync($"http://{service.ServiceAddress}:{service.ServicePort}/weatherforecast");
+                        var result = await response.Content.ReadAsStringAsync();
+                        Console.WriteLine(result);
+                    }
+                }
+            }
+            //Find the ServiceB
+            using (var consulClient = new ConsulClient(a => a.Address = new Uri(dataOptions.ConsulUrl)))
+            {
+                var services = consulClient.Catalog.Service("ServiceB").Result.Response;
+                if (services != null && services.Any())
+                {
+                    // 模拟随机一台进行请求，这里只是测试，可以选择合适的负载均衡工具或框架
+                    Random r = new Random();
+                    int index = r.Next(services.Count());
+                    var service = services.ElementAt(index);
+
+                    using (HttpClient client = new HttpClient())
+                    {
+                        var response = await client.GetAsync($"http://{service.ServiceAddress}:{service.ServicePort}/weatherforecast");
+                        var result = await response.Content.ReadAsStringAsync();
+                        Console.WriteLine(result);
+                    }
+                }
+            }
+```
+7.Key/Value存储 同步配置文件"Config.json"
+A.ServiceA and ServiceB every 5s sync the config.json
+```csharp
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            CreateHostBuilder(args).Build().Run();
+        }
+
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder.UseStartup<Startup>();
+                })
+               .ConfigureAppConfiguration(
+                    builder =>
+                    {
+                        builder
+                            .AddConsul(
+                                "Config.json",
+                                options =>
+                                {
+                                    options.ConsulConfigurationOptions =
+                                        cco => { cco.Address = new Uri("http://192.168.100.12:8500"); };
+                                    options.Optional = true;
+                                    options.PollWaitTime = TimeSpan.FromSeconds(5);
+                                    options.ReloadOnChange = true;
+                                })
+                            .AddEnvironmentVariables();
+                    });
+    }
+```
+B.ServiceA and ServiceB add ConfigController(remember _configOptions will not change after startup. In fact Only startup it's will update the lately config file)
+```csharp
+namespace ServiceA.Controllers
+{
+    [ApiController]
+    [Route("[controller]")]
+    public sealed class ConfigController : ControllerBase
+    {
+        private readonly IConfiguration _configuration;
+        private ConfigOptions _configOptions;
+        public ConfigController(IConfiguration configuration, IOptions<ConfigOptions> configOptions)
+        {
+            _configuration = configuration;
+            _configOptions = configOptions.Value;
+        }
+
+        /// <summary>
+        /// ConsulOption:ConsulAddress
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        [HttpGet("{key}")]
+        public IActionResult GetValueForKey(string key)
+        {
+            return Ok(_configuration.GetSection(key));
+        }
+        [HttpGet("GetConfigOptions")]
+        public ConfigOptions GetConfigOptions()
+        {
+            var ConfigOptions = new ConfigOptions();
+            // read the latest config from memory,remember
+            _configuration.GetSection("ConfigOptions").Bind(ConfigOptions);
+            return ConfigOptions;
+        }
+    }
+}
+```
+
+C.ConsulDotnet Console Put or Replace or update the config.json
+```csharp
+        //Put or Replace the config, the ServiceA and ServiceB will sync the config
+            using (var consulClient = new ConsulClient(a => a.Address = new Uri(dataOptions.ConsulUrl)))
+            {
+                var putPair = new KVPair("Config.json")
+                {
+                    Value = Encoding.UTF8.GetBytes(Newtonsoft.Json.JsonConvert.SerializeObject(configOptions))
+                };
+
+                var putAttempt = await consulClient.KV.Put(putPair);
+
+                if (putAttempt.Response)
+                {
+                    var getPair = await consulClient.KV.Get("Config.json");
+                    string result = Encoding.UTF8.GetString(getPair.Response.Value, 0,
+                        getPair.Response.Value.Length);
+                    Console.WriteLine(result);
+                }
+            }
+```
+D.Open with browser http://localhost:8010/swagger/index.html or  http://localhost:8011/swagger/index.html
+
+![结果](https://github.com/irac-ding/ConsulDotnetUsage/blob/master/picture/image.png "结果")
+
+E.you can open _http://localhost:8500/ui/dc1/kv/Config.json/edit to edit the config.json 
+
+![编辑Config.json](https://github.com/irac-ding/ConsulDotnetUsage/blob/master/picture/2.png "编辑Config.json")
