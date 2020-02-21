@@ -185,7 +185,7 @@ public static class ConsulBuilderExtensions
                     });
     }
 ```
-########B.ServiceA and ServiceB add ConfigController(remember _configOptions will not change after startup. In fact Only startup it's will update the lately config file)
+#####B.ServiceA and ServiceB add ConfigController(remember _configOptions will not change after startup. In fact Only startup it's will update the lately config file)
 ```csharp
 namespace ServiceA.Controllers
 {
