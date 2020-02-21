@@ -37,7 +37,8 @@ bind
 
 **Windows:**
 
- Goto https://www.consul.io/downloads.html download Consul Zip file, Extract to C:/Consul
+ Goto https://www.consul.io/downloads.html download Consul Zip file, Extract to C:/Consul，
  build And Run: cmd run the buildAndRun.bat
+ 
 实战：
 ![项目图](https://github.com/irac-ding/ConsulDotnetUsage/blob/master/picture/5378831-36333b210141eef9.png "项目图")
