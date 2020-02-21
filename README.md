@@ -1,5 +1,5 @@
 # Consul in .net core 3
-Consul 介绍
+##Consul 介绍
 
 在分布式架构中，服务治理是必须面对的问题，如果缺乏简单有效治理方案，各服务之间只能通过人肉配置的方式进行服务关系管理，当遇到服务关系变化时，就会变得极其麻烦且容易出错。
 
@@ -7,7 +7,7 @@ Consul 是一个用来实现分布式系统服务发现与配置的开源工具�
 ![Consul 架构图](https://github.com/irac-ding/ConsulDotnetUsage/blob/master/picture/5378831-1b41fc061123189b.png "Consul 架构图")
 Consul 集群支持多数据中心，在上图中有两个 DataCenter，他们通过 Internet 互联，为了提高通信效率，只有 Server 节点才加入跨数据中心的通信。在单个数据中心中，Consul 分为 Client 和 Server 两种节点（所有的节点也被称为 Agent），Server 节点保存数据，Client 负责健康检查及转发数据请求到 Server，本身不保存注册信息；Server 节点有一个 Leader 和多个 Follower，Leader 节点会将数据同步到 Follower，Server 节点的数量推荐是3个或者5个，在 Leader 挂掉的时候会启动选举机制产生一个新 Leader。
 
-主要参数：
+##主要参数：
 具体启动文档见 [configuration](https://www.consul.io/docs/agent/options.html#configuration_files "configuration")。
 如:
 consul agent -server -config-dir /etc/consul.d -bind=192.168.1.100
@@ -35,20 +35,20 @@ bootstrap
 bind
 用于集群内部通信的IP地址，与集群中其他节点互连可通。默认为“0.0.0.0”，consul将使用第一个有效的私有IPv4地址。如果指定“[::]”，consul将使用第一个有效的公共IPv6地址。使用TCP和UDP通信。注意防火墙，避免无法通信。
 
-**Windows:**
+##Windows
 
  Goto https://www.consul.io/downloads.html download Consul Zip file, Extract to C:/Consul，
  build And Run: cmd run the buildAndRun.bat
  
-实战：
+##实战：
 
 ![项目图](https://github.com/irac-ding/ConsulDotnetUsage/blob/master/picture/5378831-36333b210141eef9.png "项目图")
 
-1.创建 .NET Core WebAPI 服务 ServiceA（2个实例） 和 ServiceB
+###1.创建 .NET Core WebAPI 服务 ServiceA（2个实例） 和 ServiceB
 
-2.NuGet 安装 Consul
+###2.NuGet 安装 Consul
 
-3.注册到 Consul 的核心代码如下（源码下载）：
+###3.注册到 Consul 的核心代码如下（源码下载）：
 ```csharp
 public static class ConsulBuilderExtensions
 {
@@ -87,7 +87,7 @@ public static class ConsulBuilderExtensions
   }
 }
 ```
-4.添加配置如下：
+###4.添加配置如下：
 ```json
 {
   "Logging": {
@@ -106,10 +106,10 @@ public static class ConsulBuilderExtensions
 }
 
 ```
-5.注册成功结果如下：
+###5.注册成功结果如下：
 ![注册成功结果](https://github.com/irac-ding/ConsulDotnetUsage/blob/master/picture/image%20(1).png "注册成功结果")
 
-6.服务发现
+###6.服务发现
 ```csharp
        // Find the ServiceA
             using (var consulClient = new ConsulClient(a => a.Address = new Uri(dataOptions.ConsulUrl)))
@@ -150,8 +150,9 @@ public static class ConsulBuilderExtensions
                 }
             }
 ```
-7.Key/Value存储 同步配置文件"Config.json"
-A.ServiceA and ServiceB every 5s sync the config.json
+###7.Key/Value存储 同步配置文件"Config.json"
+
+####A.ServiceA and ServiceB every 5s sync the config.json
 ```csharp
     public class Program
     {
@@ -184,7 +185,7 @@ A.ServiceA and ServiceB every 5s sync the config.json
                     });
     }
 ```
-B.ServiceA and ServiceB add ConfigController(remember _configOptions will not change after startup. In fact Only startup it's will update the lately config file)
+########B.ServiceA and ServiceB add ConfigController(remember _configOptions will not change after startup. In fact Only startup it's will update the lately config file)
 ```csharp
 namespace ServiceA.Controllers
 {
@@ -222,7 +223,7 @@ namespace ServiceA.Controllers
 }
 ```
 
-C.ConsulDotnet Console Put or Replace or update the config.json
+####C.ConsulDotnet Console Put or Replace or update the config.json
 ```csharp
         //Put or Replace the config, the ServiceA and ServiceB will sync the config
             using (var consulClient = new ConsulClient(a => a.Address = new Uri(dataOptions.ConsulUrl)))
@@ -243,10 +244,10 @@ C.ConsulDotnet Console Put or Replace or update the config.json
                 }
             }
 ```
-D.Open with browser http://localhost:8010/swagger/index.html or  http://localhost:8011/swagger/index.html
+####D.Open with browser http://localhost:8010/swagger/index.html or  http://localhost:8011/swagger/index.html
 
 ![结果](https://github.com/irac-ding/ConsulDotnetUsage/blob/master/picture/image.png "结果")
 
-E.you can open _http://localhost:8500/ui/dc1/kv/Config.json/edit to edit the config.json 
+####E.you can open _http://localhost:8500/ui/dc1/kv/Config.json/edit to edit the config.json 
 
 ![编辑Config.json](https://github.com/irac-ding/ConsulDotnetUsage/blob/master/picture/2.png "编辑Config.json")
