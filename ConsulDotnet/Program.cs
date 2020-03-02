@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -69,9 +70,10 @@ namespace ConsulDotnet
             //Put or Replace the config, the ServiceA and ServiceB will sync the config
             using (var consulClient = new ConsulClient(a => a.Address = new Uri(dataOptions.ConsulUrl)))
             {
+                string jsonString = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Config.json"), Encoding.Default);
                 var putPair = new KVPair("Config.json")
                 {
-                    Value = Encoding.UTF8.GetBytes(Newtonsoft.Json.JsonConvert.SerializeObject(configOptions))
+                    Value = Encoding.UTF8.GetBytes(jsonString)
                 };
 
                 var putAttempt = await consulClient.KV.Put(putPair);

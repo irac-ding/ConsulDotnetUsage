@@ -25,6 +25,7 @@ namespace ConsulDotnet
             IConfiguration config = new ConfigurationBuilder()
               .SetBasePath(HostingEnvironment.ContentRootPath)
               .AddJsonFile("appsettings.json", true, true)
+               .AddJsonFile("Config.json", true, true)
               .AddJsonFile($"appsettings.{HostingEnvironment.EnvironmentName}.json", true, true)
               .AddEnvironmentVariables()
               .Build();
