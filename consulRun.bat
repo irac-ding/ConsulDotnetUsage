@@ -1,1 +1,1 @@
-C:/Consul/consul  agent -server -ui -bootstrap-expect=1 -data-dir=C:\consul -node=consul-1 -client=0.0.0.0 -bind=192.168.100.12 -datacenter=dc1
+C:/Consul/consul  agent -server -ui -bootstrap-expect=1 -data-dir=C:\Consul -node=consul-1 -client=0.0.0.0 -bind=127.0.0.1 -datacenter=dc1
