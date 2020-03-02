@@ -1,4 +1,6 @@
-﻿namespace Common.Consul
+﻿using System.Collections.Generic;
+
+namespace Common.Consul
 {
     /// <summary>
     /// Consul 注册发现相关参数
@@ -29,5 +31,9 @@
         /// Consul 地址
         /// </summary>
         public string ConsulAddress { get; set; }
+
+        public string[] Tags { get; set; }
+
+        public IDictionary<string, string> Meta { get; set; }
     }
 }

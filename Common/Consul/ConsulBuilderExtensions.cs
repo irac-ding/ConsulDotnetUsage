@@ -19,6 +19,7 @@ namespace Common.Consul
             {
                 ID = Guid.NewGuid().ToString(),
                 Name = consulOption.ServiceName,// 服务名
+                Tags=consulOption.Tags,
                 Address = consulOption.ServiceIP, // 服务绑定IP
                 Port = consulOption.ServicePort, // 服务绑定端口
                 Check = new AgentServiceCheck()
@@ -27,7 +28,8 @@ namespace Common.Consul
                     Interval = TimeSpan.FromSeconds(10),//健康检查时间间隔
                     HTTP = consulOption.ServiceHealthCheck,//健康检查地址
                     Timeout = TimeSpan.FromSeconds(5)
-                }
+                },
+                Meta=consulOption.Meta
             };
 
             // 服务注册

@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Common;
+using Common.Consul;
 using Consul;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,6 +21,11 @@ namespace ConsulDotnet
         private static IServiceProvider ServiceProvider;
         public static async Task Main(string[] args)
         {
+            ConsulOption consulOption = new ConsulOption();
+            consulOption.Meta = new Dictionary<string, string>();
+            consulOption.Meta.Add("ServiceA", "A");
+            consulOption.Meta.Add("ServiceAb", "A");
+            string test= Newtonsoft.Json.JsonConvert.SerializeObject(consulOption);
             IConfiguration Configuration;
             Startup = ConsoleAppConfigurator.BootstrapApp();
             var serviceCollection = new ServiceCollection();
