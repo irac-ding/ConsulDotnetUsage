@@ -25,7 +25,7 @@ namespace ConsulDotnet
             consulOption.Meta = new Dictionary<string, string>();
             consulOption.Meta.Add("ServiceA", "A");
             consulOption.Meta.Add("ServiceAb", "A");
-            string test= Newtonsoft.Json.JsonConvert.SerializeObject(consulOption);
+            string test = Newtonsoft.Json.JsonConvert.SerializeObject(consulOption);
             IConfiguration Configuration;
             Startup = ConsoleAppConfigurator.BootstrapApp();
             var serviceCollection = new ServiceCollection();
@@ -39,6 +39,7 @@ namespace ConsulDotnet
             // Find the ServiceA
             using (var consulClient = new ConsulClient(a => a.Address = new Uri(dataOptions.ConsulUrl)))
             {
+                var result1 = consulClient.Health.Service("ServiceA").Result.Response;
                 var services = consulClient.Catalog.Service("ServiceA").Result.Response;
                 if (services != null && services.Any())
                 {

@@ -15,7 +15,7 @@ namespace ServiceA
 {
     public class Startup
     {
-        public IConfiguration Configuration { get; }
+        public IConfiguration Configuration { get; set; }
         public IHostEnvironment HostingEnvironment { get; }
         public Startup(IHostEnvironment hostingEnvironment, IConfiguration configuration)
         {
@@ -27,7 +27,7 @@ namespace ServiceA
         public void ConfigureServices(IServiceCollection services)
         {
             // HostingEnvironment.EnvironmentName 通过环境变量设置
-            IConfiguration config = new ConfigurationBuilder()
+            Configuration = new ConfigurationBuilder()
               .SetBasePath(HostingEnvironment.ContentRootPath)
               .AddJsonFile("appsettings.json", true, true)
               .AddJsonFile($"appsettings.{HostingEnvironment.EnvironmentName}.json", true, true)

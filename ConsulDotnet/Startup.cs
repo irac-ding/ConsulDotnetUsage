@@ -8,7 +8,7 @@ namespace ConsulDotnet
     public class Startup
     {
         public IHostEnvironment HostingEnvironment { get; }
-        public IConfiguration Configuration { get; }
+        public IConfiguration Configuration { get; set; }
 
         public Startup(
             IHostEnvironment hostingEnvironment,
@@ -22,14 +22,14 @@ namespace ConsulDotnet
         public void ConfigureServices(IServiceCollection serviceCollection)
         {
             // HostingEnvironment.EnvironmentName 通过环境变量设置
-            IConfiguration config = new ConfigurationBuilder()
+            Configuration = new ConfigurationBuilder()
               .SetBasePath(HostingEnvironment.ContentRootPath)
               .AddJsonFile("appsettings.json", true, true)
                .AddJsonFile("Config.json", true, true)
               .AddJsonFile($"appsettings.{HostingEnvironment.EnvironmentName}.json", true, true)
               .AddEnvironmentVariables()
               .Build();
-            serviceCollection.AddSingleton(config);
+            serviceCollection.AddSingleton(Configuration);
             serviceCollection.AddSingleton(HostingEnvironment);
             serviceCollection.AddOptions();
             serviceCollection.Configure<DataOptions>(Configuration.GetSection("Data"));
