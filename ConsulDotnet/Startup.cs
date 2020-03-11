@@ -34,6 +34,7 @@ namespace ConsulDotnet
             serviceCollection.AddOptions();
             serviceCollection.Configure<DataOptions>(Configuration.GetSection("Data"));
             serviceCollection.Configure<ConfigOptions>(Configuration.GetSection("ConfigOptions"));
+            serviceCollection.AddSingleton<IConsulServicesFind, ConsulServicesFind>();
         }
     }
 }

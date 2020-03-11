@@ -21,11 +21,7 @@ namespace ConsulDotnet
         private static IServiceProvider ServiceProvider;
         public static async Task Main(string[] args)
         {
-            ConsulOption consulOption = new ConsulOption();
-            consulOption.Meta = new Dictionary<string, string>();
-            consulOption.Meta.Add("ServiceA", "A");
-            consulOption.Meta.Add("ServiceAb", "A");
-            string test = Newtonsoft.Json.JsonConvert.SerializeObject(consulOption);
+           
             IConfiguration Configuration;
             Startup = ConsoleAppConfigurator.BootstrapApp();
             var serviceCollection = new ServiceCollection();
@@ -36,11 +32,22 @@ namespace ConsulDotnet
             Configuration.GetSection("ConfigOptions").Bind(ConfigOptionsTest);
             DataOptions dataOptions = ServiceProvider.GetService<IOptions<DataOptions>>().Value;
             ConfigOptions configOptions = ServiceProvider.GetService<IOptions<ConfigOptions>>().Value;
+            IConsulServicesFind consulServicesFind = ServiceProvider.GetRequiredService<IConsulServicesFind>();
+           
+            ConsulOption consulOption=new ConsulOption();
+            Configuration.GetSection("ConsulOption").Bind(consulOption);
+            //注册10个不健康的ServiceA节点
+            consulOption.ServiceHealthCheck = "http://127.0.0.1:8088/healthCheck";
+            for (int i = 0; i < 10; i++)
+            {
+                RegisterConsul(consulOption);
+            }
             // Find the ServiceA
+
             using (var consulClient = new ConsulClient(a => a.Address = new Uri(dataOptions.ConsulUrl)))
             {
-                var result1 = consulClient.Health.Service("ServiceA").Result.Response;
-                var services = consulClient.Catalog.Service("ServiceA").Result.Response;
+                CatalogService[] services = consulServicesFind.FindConsulServices("ServiceA").ToArray();
+
                 if (services != null && services.Any())
                 {
                     // 模拟随机一台进行请求，这里只是测试，可以选择合适的负载均衡工具或框架
@@ -56,10 +63,16 @@ namespace ConsulDotnet
                     }
                 }
             }
+            //注册10个不健康的ServiceB节点
+            consulOption.ServiceName = "ServiceB";
+            for (int i = 0; i < 10; i++)
+            {
+                RegisterConsul(consulOption);
+            }
             //Find the ServiceB
             using (var consulClient = new ConsulClient(a => a.Address = new Uri(dataOptions.ConsulUrl)))
             {
-                var services = consulClient.Catalog.Service("ServiceB").Result.Response;
+                CatalogService[] services = consulServicesFind.FindConsulServices("ServiceB").ToArray();
                 if (services != null && services.Any())
                 {
                     // 模拟随机一台进行请求，这里只是测试，可以选择合适的负载均衡工具或框架
@@ -94,6 +107,34 @@ namespace ConsulDotnet
                     Console.WriteLine(result);
                 }
             }
+        }
+        public static void RegisterConsul(ConsulOption consulOption)
+        {
+            var consulClient = new ConsulClient(x =>
+            {
+                // consul 服务地址
+                x.Address = new Uri(consulOption.ConsulAddress);
+            });
+
+            var registration = new AgentServiceRegistration()
+            {
+                ID = Guid.NewGuid().ToString(),
+                Name = consulOption.ServiceName,// 服务名
+                Tags = consulOption.Tags,
+                Address = consulOption.ServiceIP, // 服务绑定IP
+                Port = consulOption.ServicePort, // 服务绑定端口
+                Check = new AgentServiceCheck()
+                {
+                    DeregisterCriticalServiceAfter = TimeSpan.FromSeconds(5),//服务启动多久后注册
+                    Interval = TimeSpan.FromSeconds(10),//健康检查时间间隔
+                    HTTP = consulOption.ServiceHealthCheck,//健康检查地址
+                    Timeout = TimeSpan.FromSeconds(5)
+                },
+                Meta = consulOption.Meta
+            };
+
+            // 服务注册
+            consulClient.Agent.ServiceRegister(registration).Wait();
         }
     }
 }
